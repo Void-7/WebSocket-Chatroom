@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatroom</title>
+    <style>
+        .sendbtn {
+            display: block;
+            width: 90px;
+            height:60px;
+            border: none;
+            background: linear-gradient(120deg, #54E38E, #D4FC78);
+            background-size: 200%;
+            color: #fff;
+            outline: none;
+            cursor: pointer;
+            transition: .5s;
+            border-radius: 5px;
+            margin:10px;
+            font-size:24px;
+        }
+        .sendbtn:hover {
+        background-position:right;
+        box-shadow: 0 0 15px #2becfa;
+        }
+        input{
+            border:3px solid grey;
+            border-radius: 5px;
+            width: 300px;
+            height: 50px;
+            margin:10px;
+            font-size:24px;
+        }
+        .wrapper{
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <span class="wrapper">
+        <input type="text" placeholder="输入消息"/>
+        <button class="sendbtn">发送</button>
+    </span>
+    <div></div>
+
+    <script>
+        const TYPE_ENTER=0;
+        const TYPE_LEAVE=1;
+        const TYPE_MSG=2;
+        var input=document.querySelector('input');
+        var button=document.querySelector('button');
+        var div=document.querySelector('div');
+    //1.创建wb
+    //参数1：ws的服务地址
+    var s=new WebSocket('ws://localhost:3000');
+
+    //2.open:当和wb服务连接成功触发
+    s.addEventListener('open',function(){
+        div.innerHTML='服务连接成功';
+    })
+
+    //3.主动向wb服务发送消息
+    button.addEventListener('click',function(){
+        var val=input.value;
+        s.send(val);
+        input.value='';
+    })
+    //4.接受wb服务的消息
+    s.addEventListener('message',function(e){
+        var data=JSON.parse(e.data);
+
+        console.log(e.data);
+        var dv=document.createElement('div');
+        dv.innerText=data.msg+'   at '+data.time;
+        if(data.type===TYPE_ENTER){
+            dv.style.color='green';
+        }else if(data.type===TYPE_LEAVE){
+            dv.style.color='red';
+        }else{
+            dv.style.color='blue';
+        }
+        div.appendChild(dv);
+    })
+
+    </script>
+</body>
+</html>
